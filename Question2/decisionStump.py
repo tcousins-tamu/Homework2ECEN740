@@ -92,11 +92,35 @@ if __name__ == "__main__":
                     polarization[dimension] = 1
                     threshold[dimension] = dataPoint[dimension]
                     trainingError[dimension] = error1
-                    
+    
+    #Section for calculating the overall training error               
+    trainingErrorOv = 0
+    numcorrect = 0 #Total number of correct guesses
+    for idx, dataPoint in enumerate(trainData):
+        correctGuesses = np.full(trainData.shape[1]-2, False) #per iteration, which parameters are correct 
+        for dimension in range(0, trainData.shape[1]-2):
+            if polarization[dimension]>0: #if it is >=
+                if (dataPoint[dimension]>=threshold[dimension]) & (dataPoint[-1] == features[-1]):
+                    correctGuesses[dimension] = True
+                elif (dataPoint[dimension]<threshold[dimension]) & (dataPoint[-1] == features[0]):
+                    correctGuesses[dimension] = True
+            else: #<=
+                if (dataPoint[dimension]>threshold[dimension]) & (dataPoint[-1] == features[0]):
+                    correctGuesses[dimension] = True
+                elif (dataPoint[dimension]<=threshold[dimension]) & (dataPoint[-1] == features[-1]):
+                    correctGuesses[dimension] = True
+        neededVotes = np.ceil(float(correctGuesses.shape[0])/2)
+        #print(neededVotes, correctGuesses, len(np.where(correctGuesses==True)[0]), numcorrect)
+        if (len(np.where(correctGuesses==True)[0]) >= neededVotes):
+            numcorrect= numcorrect+1
+    trainingErrorOv = numcorrect/trainData.shape[0]
+    
+    print("TRAINING")
     print("Feature index: X1 \t X2 \t X3")
     print("Threshold: ", threshold)
     print("Polarization Parameters: ", polarization)
     print("Training Error: ", trainingError)
+    print("Training Error Overall: ", 1-trainingErrorOv)
     # print("Feature Index: ", featureThreshold)
 
     #Testing Data Section###############################################################################
