@@ -16,7 +16,6 @@ condition = (iris['y'] == 0) | (iris['y'] == 1)
 iris = iris[condition]
 
 iris.head(10)
-print(iris)
 
 iris['y_hat'] = 0
 final_gini = 1
@@ -32,17 +31,18 @@ feature_base_on_gini = 0
 feature_base_on_error = 0
 
 def gini(df):
-    print(df)
     gini = 0
     res_gini = 0
     for i in range(2):
         N = len(df[df['y_hat']==i])
         condition = (df['y'] == df['y_hat']) & (df['y_hat']==i)
+        if N==0:
+            continue
         gini = 1 - (len(df[condition])/ N)**2
         
         res_gini += gini*N  # add gini by its weight
         
-    return res_gini
+    return res_gini/100
 
 def classification_error(df):
     return len(df[df['y'] != df['y_hat']])/len(df)
@@ -61,20 +61,22 @@ for i in range(2): # we only have two features
         temp_error = classification_error(iris)
         
         
-        
+        print(temp_gini)
+        print(temp_error)
         # pick one error funtion
         if(final_gini > temp_gini ):
             final_gini = temp_gini
             stump_base_on_gini = a
             direction_base_on_gini = 1
             feature_base_on_gini = i
-            
         
-        if(final_error > temp_error ):
+        if (final_error>temp_error):
             final_error = temp_error
             stump_base_on_error = a
             direction_bast_on_error = 1
             feature_base_on_error = i
+            
+
         
         # direction -1
         iris.loc[iris[0] <= -1*a, 'y_hat'] = 0
@@ -91,12 +93,12 @@ for i in range(2): # we only have two features
             direction_base_on_gini = -1
             feature_base_on_gini = i
             
-        
-        if(final_error > temp_error ):
+        if (final_error>temp_error):
             final_error = temp_error
             stump_base_on_error = a
             direction_bast_on_error = -1
             feature_base_on_error = i
+
             
 
 print(f"Stump base on Gini :{stump_base_on_gini}")
